@@ -60,7 +60,7 @@ for nn=1:NN
         end
         %sample randomly from wavelength and bead size space based on bead and wavelength distribution.
         for j=1:20000
-            DD=normrnd(D0(nn),err_D0(nn))+normrnd(0,delta_D0(nn));
+            DD=normrnd(normrnd(D0(nn),err_D0(nn)),delta_D0(nn));
             lambda=normrnd(wl(k),delta_wl(k));
             rr(j)=pi*nm*DD/lambda;
             beta(j,:)=pi*DD^2/4*interp1(rho,beta__,rr(j),'linear','extrap');
@@ -100,7 +100,7 @@ for nn=1:NN
         end
         %sample randomly from wavelength and bead size space.
         for j=1:20000
-            DD=normrnd(D0(nn),err_D0(nn))+normrnd(0,delta_D0(nn));
+            DD=normrnd(normrnd(D0(nn),err_D0(nn)),delta_D0(nn)); 
             lambda=normrnd(c_wl(jj),delta_c_wl(jj));
             r(j)=pi*nm*DD/lambda;
             c(j,:)=pi*DD^2/4*interp1(rho,Q_ext,r(j),'linear','extrap');
@@ -113,7 +113,7 @@ for nn=1:NN
     for k=1:KK
         for jj=1:JJ
           for j=1:20000 %this is where the angular distribution of theta is taken into account
-            theta_=normrnd(theta,err_theta)+normrnd(0,d_theta);
+            theta_=normrnd(normrnd(theta,err_theta),d_theta);
             if theta_>180
                 theta_=theta_-180;
             end
