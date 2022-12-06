@@ -42,7 +42,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,er
 	NN = length(D0); %number of beads
 	KK = length(wl); %number of wavelengths of beta 
 	JJ = length(c_wl); %number of wavelengths of beam_c
-	NNN = 500; %number of size parameter discritization wanted
+	NNN = 1000; %number of size parameter discritization wanted
 	N = 20000; % number of random realizations
 	now_1 = now; % start timer
 
@@ -54,7 +54,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,er
 	d_VSF = nan(NN, KK, length(ang));
 	Q_ext = nan(NNN + 1, 1);
 	r = nan(N, 1);
-	c = nan(N, NN);
+	c = nan(N, 1);
 	
 	beam_c = nan(NN, JJ);
 	d_beam_c = nan(NN, JJ);
@@ -150,7 +150,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,er
 					keyboard()
 				end	
 	            r(j) = pi*nm*DD/lambda;
-	            c(j, : ) = pi*DD^2/4*interp1(rho, Q_ext, r(j), 'linear', 'extrap');
+	            c(j) = pi*DD^2/4*interp1(rho, Q_ext, r(j), 'linear', 'extrap');
 	        end
 			
 	        beam_c(nn, jj) = mean(c);
