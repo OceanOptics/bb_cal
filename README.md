@@ -18,5 +18,7 @@ An example of how to call it:
 for three beads, 0.1, 0.2 and 0.7um, uncertainty in the mean value 4, 6 and 7nm, dispersion around the meand value of 20, 3 and 40nm, for two backscatteriing wavelengths, 470 and 555nm with standard deviation of 15 and 10nm. For beam attenuation measured at 532nm with an ac-9 (assume stdev=10nm).
 Backscattering angle assumed 120 +/-5 with a dispersion of 16degrees.
 
+Note, because this is a Monte-Carlo type code results ARE a function of the number of time you compute things and, for large beads, descretization. Rerun with double the N (typically 500) and NNN (typically 20,000) numbers to ensure you have a handle on the associated errors.
+
 For any comments/questions please contact: emmanuel.boss@maine.edu
 Thanks for Giorgio Dall'Olmo for suggesting many improvements!
