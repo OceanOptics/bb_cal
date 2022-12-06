@@ -2,7 +2,7 @@
 To run this code you will need fastmie.m from https://github.com/OceanOptics/MieTheory
 The program 'Theoretical_slope.m' is used to compute the theoretical slope for bead calibrations of backscattering meters.
 VSF and beam c are computed for beads distributed normally with center value 'D0', uncertainty in center, 'err_D0' and
-standard deviation 'delta_D0' (taken straight from the calibration bead bottle.
+standard deviation 'delta_D0' (taken straight from the calibration bead bottle - note, the manufacturer write that it is a k=2 uncertainty, hence we assume that err_D0 is TWICE the standard deviation of the mean value).
 Values for VSF at wavelength with centroid wavelength 'wl' standard deviation 'delta_wl' as measured, for example, with a spectro-radiometer.
 Program assumes that beam attenuation is measured with an AC instrument measuring the beam attenuation (acceptance angle 0.93degrees) at wavelength
 'c_wl' each with uncertainty 'delta_c_wl' (wavelength does NOT have to match that of the backscattering sensor).
@@ -19,3 +19,4 @@ for three beads, 0.1, 0.2 and 0.7um, uncertainty in the mean value 4, 6 and 7nm,
 Backscattering angle assumed 120 +/-5 with a dispersion of 16degrees.
 
 For any comments/questions please contact: emmanuel.boss@maine.edu
+Thanks for Giorgio Dall'Olmo for suggesting many improvements!
