@@ -1,4 +1,4 @@
-function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,err_D0,delta_D0,wl,delta_wl,c_wl,delta_c_wl,theta,err_theta,d_theta);
+function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(D0,err_D0,delta_D0,wl,delta_wl,c_wl,delta_c_wl,theta,err_theta,d_theta);
 % To run this code you will need fastmie.m from https://github.com/OceanOptics/MieTheory The program 'Theoretical_slope.m' 
 % is used to compute the theoretical slope for bead calibrations of backscattering meters. VSF and beam c are computed for 
 % beads distributed normally with center value 'D0', uncertainty in center, 'err_D0' and standard deviation 'delta_D0' 
@@ -43,7 +43,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,er
 	KK = length(wl); %number of wavelengths of beta 
 	JJ = length(c_wl); %number of wavelengths of beam_c
 	NNN = 1000; %number of size parameter discritization wanted
-	N = 20000; % number of random realizations
+	N = 200; % number of random realizations
 	now_1 = now; % start timer
 
 	% initialise arrays used to collect output of for loops (this is key to speed up for loops in octave)
@@ -170,7 +170,14 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,er
 	            if theta_>180
 	                theta_ = theta_ - 180;
 	            end
-	            beta_(j) = interp1(ang, normrnd(squeeze(VSF(nn, k, : )), squeeze(d_VSF(nn, k, : ))), theta_, 'linear');
+				
+				% create random VSF
+				rnd_VSF = normrnd(squeeze(VSF(nn, k, :)), squeeze(d_VSF(nn, k, :)));
+				if any(rnd_VSF<0) % check if there are negative values in rnd_VSF
+					keyboard()
+				end
+				
+	            beta_(j) = interp1(ang, rnd_VSF, theta_, 'linear');
 	          end
 			  
 	          mean_beta_(k, jj) = nanmean(beta_);
