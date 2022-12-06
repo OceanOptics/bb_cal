@@ -1,32 +1,36 @@
 function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio] = Theoretical_slope(D0,err_D0,delta_D0,wl,delta_wl,c_wl,delta_c_wl,theta,err_theta,d_theta);
-% Program to compute the theoretical slope for bead calibrations.
-% VSF and beam c are computed for beads distributed normally with center value D0, uncertainty in center, err_D0 and
-% standard deviation delta_D0 (taken straight from the calibration bead bottle.
-% Values for VSF at wavelenght with centroid wavelength wl standard
-% deviation delta_wl as measured with a radiometer.
-% Program assumes that beam attenuation is measured with an AC instrument measuring the beam attenuation (acceptance angle 0.93degrees) at wavelength
-% c_wl each with uncertainty delta_c_wl
-% BB instrument angular reponse is given by a Gaussian with mean theta and
-% standard deviation d_theta. Uncertainty in the mean values is given by err_theta.
-% NB: everything should be in either micron or nanometer (wavelength, bead
-% size) and theta parameters re assumed in degrees.
-% Output: VSF (mean VSF for 1bead/m^3), D_VSF (uncertainty of VSF for
-% 1bead/m^3), beam_c (for 1bead/m^3), d_beam_c (uncertainty in beam
-% attenaution for 1bead/m^3), ratio-ratio of the two  and unc_ratio
-% (uncertainty in the ratio.
-% An example of how to call it:
-% [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio]= Theoretical_slope([0.1 0.2 0.7],[0.004 0.006 0.007],[0.020 0.003 0.040],[0.470 0.555],[0.015 0.010],0.532,0.01,120,5,16);
-% for three beads, 0.1, 0.2 and 0.7um, uncertainty in the mean value 4, 6
-% and 7nm, dispersion around the meand value of 20, 3 and 40nm, for two backscatteriing wavelengths, 470 and 555nm with standard deviation of 15 and 10nm. 
-% For beam attenuation measured at 532nm with an ac-9 (assume stdev=10nm).
-% Backscattering angle assume 120 +/-5 with a dispersion of 16degrees.
-%Emmanuel Boss 11-30-2022
+% To run this code you will need fastmie.m from https://github.com/OceanOptics/MieTheory The program 'Theoretical_slope.m' 
+% is used to compute the theoretical slope for bead calibrations of backscattering meters. VSF and beam c are computed for 
+% beads distributed normally with center value 'D0', uncertainty in center, 'err_D0' and standard deviation 'delta_D0' 
+% (taken straight from the calibration bead bottle. 
+% 
+% Note that the manufacturer specify that err_D0 is a k=2 estimate, hence
+% we treat it as 2*standard deviation of the mean.
+% 
+% Values for VSF at wavelength with centroid wavelength 'wl' standard 
+% deviation 'delta_wl' as measured, for example, with a spectro-radiometer. Program assumes that beam attenuation is 
+% measured with an AC instrument measuring the beam attenuation (acceptance angle 0.93degrees) at wavelength 'c_wl' 
+% each with uncertainty 'delta_c_wl' (wavelength does NOT have to match that of the backscattering sensor). Backscatterin 
+% instrument angular reponse is given by a Gaussian with mean 'theta' and standard deviation 'd_theta'. Uncertainty in 
+% the mean values is given by 'err_theta'. NB: Wavelength and bead-size should be in either in units of microns or nanometers 
+% and angular parameters are assumed in degrees.
+% Output: 'VSF' (mean VSF for 1bead/m^3), 'd_VSF' (uncertainty of VSF for 1bead/m^3), 'beam_c' (for 1bead/m^3), 'd_beam_c' 
+% (uncertainty in beam attenaution for 1bead/m^3), 'ratio'-ratio of the two and 'unc_ratio' (uncertainty in the ratio).
+% 
+% An example of how to call it: [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio]= Theoretical_slope([0.1 0.2 0.7],[0.004 0.006 0.007],[0.020 0.003 0.040],[0.470 0.555],[0.015 0.010],0.532,0.01,120,5,16);
+% 
+% for three beads, 0.1, 0.2 and 0.7um, uncertainty in the mean value 4, 6 and 7nm, dispersion around the meand value of 20, 3 and 40nm, 
+% for two backscatteriing wavelengths, 470 and 555nm with standard deviation of 15 and 10nm. For beam attenuation measured at 532nm with 
+% an ac-9 (assume stdev=10nm). Backscattering angle assumed 120 +/-5 with a dispersion of 16degrees.
+% 
+% For any comments/questions please contact: emmanuel.boss@maine.edu
+%  Emmanuel Boss 12-05-2022 + help from Giorgio Dall'Olmo
 
 %%% used in all Mie computations
 accept_angle=0.93; % acceptance angle of transmissometer
 nang=100*3+1; %number of angles for mie computation
 dang=pi/2/(nang-1); %angular resolution in radians
-nan=2*nang-1; %number of angles for computation
+%n_ang=2*nang-1; %number of angles for computation
 ang=[0:dang:pi]*180/pi; %angles in degrees
 T=24; %temperature of calibration water, for index of refraction computations
 
@@ -40,8 +44,8 @@ for nn=1:NN
         %do the necessary Mie computations.
         max_wl=wl(k)+3*delta_wl(k); %99th percentile.
         min_wl=wl(k)-3*delta_wl(k); %99th percentile.
-        max_D=D0(nn)+err_D0(nn)+3*delta_D0(nn); %99th percentile.
-        min_D=D0(nn)-err_D0(nn)-3*delta_D0(nn); %99th percentile.
+        max_D=D0(nn)+1.5*err_D0(nn)+3*delta_D0(nn); %99th percentile.
+        min_D=D0(nn)-1.5*err_D0(nn)-3*delta_D0(nn); %99th percentile.
 
         %parameter space for which we will do Mie computations.
         min_D_over_lambda=min_D/max_wl;
@@ -60,7 +64,10 @@ for nn=1:NN
         end
         %sample randomly from wavelength and bead size space based on bead and wavelength distribution.
         for j=1:20000
-            DD=normrnd(normrnd(D0(nn),err_D0(nn)),delta_D0(nn));
+            DD=normrnd(normrnd(D0(nn),err_D0(nn)/2),delta_D0(nn)); 
+            while DD<0
+                DD=normrnd(normrnd(D0(nn),err_D0(nn)/2),delta_D0(nn)); 
+            end
             lambda=normrnd(wl(k),delta_wl(k));
             rr(j)=pi*nm*DD/lambda;
             beta(j,:)=pi*DD^2/4*interp1(rho,beta__,rr(j),'linear','extrap');
@@ -76,8 +83,8 @@ for nn=1:NN
         %do the necessary Mie computations.
         max_wl=c_wl(jj)+3*delta_c_wl(jj); %99th percentile.
         min_wl=c_wl(jj)-3*delta_c_wl(jj); %99th percentile.
-        max_D=D0(nn)+err_D0(nn)+3*delta_D0(nn); %99th percentile.
-        min_D=D0(nn)-err_D0(nn)-3*delta_D0(nn); %99th percentile.
+        max_D=D0(nn)+1.5*err_D0(nn)+3*delta_D0(nn); %99th percentile.
+        min_D=D0(nn)-1.5*err_D0(nn)-3*delta_D0(nn); %99th percentile.
         dd=(max_D_over_lambda-min_D_over_lambda)/900;
 
         for i=1:NNN+1
@@ -90,17 +97,20 @@ for nn=1:NN
             %computations for beam attenuation:correcting for acceptance angle of ac-9
             delta=(pi-accept_angle*pi/180)/length(ang);
             ang_=[accept_angle*pi/180:delta:pi]*180/pi;
-            nan_=length(ang_);
+            nang_=length(ang_);
             S11_=interp1(ang,S11,ang_,'pchip')';
             S11_rad_=S11_.*sin(ang_'*pi/180)*2*pi; %taking care of azymuthal weighing
-            S11_int_=integrate(S11_rad_,delta,nan_);
+            S11_int_=integrate(S11_rad_,delta,nang_);
             Qb_corr=Qb*S11_int_/S11_int; % correct Qb for acceptance angle.
             Qa=Qc-Qb;
             Q_ext(i)=Qa+Qb_corr;
         end
         %sample randomly from wavelength and bead size space.
         for j=1:20000
-            DD=normrnd(normrnd(D0(nn),err_D0(nn)),delta_D0(nn)); 
+            DD=normrnd(normrnd(D0(nn),err_D0(nn)/2),delta_D0(nn)); 
+            while DD<0
+                DD=normrnd(normrnd(D0(nn),err_D0(nn)/2),delta_D0(nn)); 
+            end
             lambda=normrnd(c_wl(jj),delta_c_wl(jj));
             r(j)=pi*nm*DD/lambda;
             c(j,:)=pi*DD^2/4*interp1(rho,Q_ext,r(j),'linear','extrap');
@@ -114,6 +124,9 @@ for nn=1:NN
         for jj=1:JJ
           for j=1:20000 %this is where the angular distribution of theta is taken into account
             theta_=normrnd(normrnd(theta,err_theta),d_theta);
+            while theta_<0
+                theta_=normrnd(normrnd(theta,err_theta),d_theta);
+            end
             if theta_>180
                 theta_=theta_-180;
             end
