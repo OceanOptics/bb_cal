@@ -37,7 +37,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
 	nang = 100*3 + 1; %number of angles for mie computation
 	dang = pi/2/(nang - 1); %angular resolution in radians
 	ang = [0: dang: pi]*180/pi; %angles in degrees
-	T = 24; %temperature of calibration water,  for index of refraction computations
+	T = 24; %temperature of calibration water, for index of refraction computations
 
 	NN = length(D0); %number of beads
 	KK = length(wl); %number of wavelengths of beta 
@@ -66,8 +66,8 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
     unc_ratio = nan(NN, KK, JJ);
 
 
-	for nn = 1: NN
-	    for k = 1: KK
+	for nn = 1 : NN
+	    for k = 1 : KK
 	        %do the necessary Mie computations.
 	        max_wl = wl(k) + 3*delta_wl(k); %99th percentile.
 	        min_wl = wl(k) - 3*delta_wl(k); %99th percentile.
@@ -80,7 +80,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
 	        dd = (max_D_over_lambda - min_D_over_lambda)/NNN;
 
 	        for i = 1 : NNN + 1
-	            [n,  nm] = IoR(wl(k), T);
+	            [n, nm] = IoR(wl(k), T);
 	            rho(i) = pi*real(n)*(min_D_over_lambda + (i - 1)*dd); %rho
 	            [S1 S2 Qb Qc Qback] = fastmie(rho(i), n, nang);
 	            S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
@@ -90,7 +90,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
 	        end
 			
 	        %sample randomly from wavelength and bead size space based on bead and wavelength distribution.
-	        for j = 1: N
+	        for j = 1 : N
 	            DD = normrnd(normrnd(D0(nn), err_D0(nn)), delta_D0(nn));
 				if any(DD<=0)
 					keyboard()
@@ -99,15 +99,15 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
 				if any(lambda<=0)
 					keyboard()
 				end	
-	            rr(j) = pi*nm*DD/lambda;
-	            beta(j, :) = pi*DD^2/4*interp1(rho, beta__, rr(j), 'linear', 'extrap');
+	            rr = pi*nm*DD/lambda;
+	            beta(j, :) = pi*DD^2/4*interp1(rho, beta__, rr, 'linear', 'extrap');
 	        end
 			
 	        VSF(nn, k, :) = nanmean(beta);
 	        d_VSF(nn, k, :) = nanstd(beta);
 	    end
 	end
-	clear rr
+
 
 
 	 %number of wavelengths of beta
