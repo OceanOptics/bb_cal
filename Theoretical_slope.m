@@ -49,7 +49,6 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ang] = Theoretical_slope(
 	% initialise arrays used to collect output of for loops (this is key to speed up for loops in octave)
 	rho = nan(NNN + 1, 1);
 	beta__ = nan(NNN + 1, length(ang));
-	rr = nan(N, 1);
 	VSF = nan(NN, KK, length(ang));
 	d_VSF = nan(NN, KK, length(ang));
 	Q_ext = nan(NNN + 1, 1);
