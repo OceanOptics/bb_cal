@@ -70,7 +70,6 @@ d_beam_c = nan(NN, KK, JJ);
 ratio = nan(NN, KK, JJ);
 unc_ratio = nan(NN, KK, JJ);
 
-
 for nn=1:NN
     max_D=D0(nn)+1.5*err_D0(nn)+3*delta_D0(nn); %99th percentile.
     min_D=D0(nn)-1.5*err_D0(nn)-3*delta_D0(nn); %99th percentile.
@@ -90,7 +89,7 @@ for nn=1:NN
         dd=(max_D_over_lambda_bb-min_D_over_lambda_bb)/NNN;
         for i=1:NNN+1 %compute VSF/cross-section for all discretized values
             [n, nm]=IoR(wl(k),T);
-            rho_bb(nn,k,i)=pi*real(n)*(min_D_over_lambda_bb+(i-1)*dd); %rho
+            rho_bb(nn,k,i)=pi*nm*(min_D_over_lambda_bb+(i-1)*dd); %rho
             [S1 S2 Qb Qc Qback]=fastmie(rho_bb(nn,k,i),n,nang);
             S11=0.5*((abs(S1)).^2 + (abs(S2)).^2);
             S11_rad=S11.*sin(ang'/180*pi)*2*pi;
@@ -115,7 +114,7 @@ for nn=1:NN
         dd=(max_D_over_lambda_cp-min_D_over_lambda_cp)/NNN;
         for i=1:NNN+1 %compute beam-c/cross-section for all discretized values
             [n, nm]=IoR(c_wl(jj),T);
-            rho_cp(nn,jj,i)=pi*real(n)*(min_D_over_lambda_cp+(i-1)*dd); %rho
+            rho_cp(nn,jj,i)=pi*nm*(min_D_over_lambda_cp+(i-1)*dd); %rho
             [S1 S2 Qb Qc Qback]=fastmie(rho_cp(nn,jj,i),n,nang);
             S11=0.5*((abs(S1)).^2 + (abs(S2)).^2);
             S11_rad=S11.*sin(ang'/180*pi)*2*pi;
@@ -161,7 +160,7 @@ for nn=1:NN
             return
         end
         [n, nm]=IoR(lambda_bb,T);
-        rr=pi*real(n).*DD./lambda_bb;
+        rr=pi*nm.*DD./lambda_bb;
         VSF__=interp1(squeeze(rho_bb(nn,k,:))',squeeze(beta__(nn,k,:,:)),rr,'linear','extrap');
         %angular averaging
         for i=1:NNNN
@@ -175,7 +174,7 @@ for nn=1:NN
                 return
             end
             [n, nm]=IoR(lambda_cp,T);
-            rr=pi*real(n).*DD./lambda_cp;
+            rr=pi*nm.*DD./lambda_cp;
             cp=(pi*DD.^2/4.*interp1(squeeze(rho_cp(nn,jj,:)),squeeze(Q_ext(nn,jj,:)),rr,'linear','extrap'))'; %compute actual beam_c
             VSF(nn,k,jj)=mean(VSF_);
             d_VSF(nn,k,jj)=std(VSF_);
