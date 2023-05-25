@@ -13,12 +13,12 @@ Output: 'VSF' (mean VSF for 1bead/m^3), 'd_VSF' (uncertainty of VSF for 1bead/m^
 attenaution for 1bead/m^3), 'ratio'-ratio of the two  and 'unc_ratio' (uncertainty in the ratio).
 
 An example of how to call it:
-[VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio]= Theoretical_slope([0.1 0.2 0.7],[0.004 0.006 0.007],[0.020 0.003 0.040],[0.470 0.555],[0.015 0.010],0.532,0.01,120,5,16);
+[VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, beam_c_nom]= Theoretical_slope([0.1 0.2 0.7],[0.004 0.006 0.007],[0.020 0.003 0.040],[0.470 0.555],[0.015 0.010],0.532,0.01,120,5,16);
 
 for three beads, 0.1, 0.2 and 0.7um, uncertainty in the mean value 4, 6 and 7nm, dispersion around the meand value of 20, 3 and 40nm, for two backscatteriing wavelengths, 470 and 555nm with standard deviation of 15 and 10nm. For beam attenuation measured at 532nm with an ac-9 (assume stdev=10nm).
 Backscattering angle assumed 120 +/-5 with a dispersion of 16degrees.
 
-Note, because this is a Monte-Carlo type code results ARE a function of the number of time you compute things and, for large beads, descretization. Rerun with double the N (typically 500) and NNN (typically 20,000) numbers to ensure you have a handle on the associated errors.
+Note, because this is a Monte-Carlo type code results ARE a function of the number of time you compute things and, for large beads, descretization. Rerun with double the N (typically 500) and NNN (typically 20,000) numbers to ensure you have a handle on the associated errors. all parameter with 'nom' as suffix are nominal values of variable assuming a fixed angle, wavelength and bead size. They are provided as a check from compuations and to allow users to evaluate the importance of keeping track of dispersion in size, wavelength and angular response of sensors. 
 
 For any comments/questions please contact: emmanuel.boss@maine.edu
 Thanks for Giorgio Dall'Olmo for suggesting many improvements!
