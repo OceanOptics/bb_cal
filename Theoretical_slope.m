@@ -1,4 +1,4 @@
-function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, beam_c_nom] = Theoretical_slope_new(D0,err_D0,delta_D0,wl,delta_wl,c_wl,delta_c_wl,theta,err_theta,d_theta);
+function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, beam_c_nom] = Theoretical_slope(D0,err_D0,delta_D0,wl,delta_wl,c_wl,delta_c_wl,theta,err_theta,d_theta);
 % To run this code you will need fastmie.m from https://github.com/OceanOptics/MieTheory The program 'Theoretical_slope.m' 
 % is used to compute the theoretical slope for bead calibrations of backscattering meters. 
 % 
@@ -79,18 +79,6 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
     ratio = nan(NN, KK, JJ);
     unc_ratio = nan(NN, KK, JJ);
 
-    % compute wavelengths in water from wavelengths in air
-    for k=1:KK
-        [n, nm] = IoR(wl(k), T);
-        wl(k)=wl(k)/nm; %wavelength in the medium
-        delta_wl(k)=delta_wl(k)/nm;
-    end
-    for j=1:JJ
-        [n, nm] = IoR(c_wl(j), T);
-        c_wl(j)=c_wl(j)/nm; %wavelength in the medium
-        delta_c_wl(j)=delta_c_wl(j)/nm;
-    end
-
 	for nn = 1 : NN %number of bead sizes
 	    for k = 1 : KK %number of wl for beta
 	        %do the necessary Mie computations.
@@ -107,7 +95,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 
 	        for i = 1 : NNN + 1
 	            [n(i), nm] = IoR(wl(k), T);   %compute index of refraction of beads relative to water
-	            rho(i) = pi*real(n(i))*(min_D_over_lambda + (i - 1)*dd); %rho
+	            rho(i) = pi*nm*(min_D_over_lambda + (i - 1)*dd); %rho
 	            [S1 S2 Qb Qc Qback] = fastmie(rho(i), n(i), nang);
 	            S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
 	            S11_rad = S11.*sin(ang'/180*pi)*2*pi;
@@ -116,7 +104,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
             end
             %compute nominal value
             [n_nom, nm] = IoR(wl(k), T);   %compute index of refraction of beads relative to water
-	        rho_nom = pi*real(n_nom)*(D0(nn)/wl(k)); 
+	        rho_nom = pi*nm*(D0(nn)/wl(k)); 
             [S1 S2 Qb Qc Qback] = fastmie(rho_nom, n_nom, nang);
             S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
             S11_rad = S11.*sin(ang'/180*pi)*2*pi;
@@ -135,7 +123,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 					keyboard()
                 end	
                 [nnn, nm] = IoR(lambda, T); 
-	            rr = pi*real(nnn)*DD/lambda;
+	            rr = pi*nm*DD/lambda;
  
 	            beta(j, :) = pi*DD^2/4*interp1(rho, beta__, rr, 'linear','extrap'); % allow for extrapolation 
 	        end
@@ -159,7 +147,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 
 	        for i = 1: NNN + 1
 	            [n(i),  nm] = IoR(c_wl(jj), T);
-	            rho(i) = pi*real(n(i))*(min_D_over_lambda + (i - 1)*dd); %rho
+	            rho(i) = pi*nm*(min_D_over_lambda + (i - 1)*dd); %rho
 	            [S1 S2 Qb Qc Qback] = fastmie(rho(i), n(i), nang);
 	            S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
 	            S11_rad = S11.*sin(ang'/180*pi)*2*pi;
