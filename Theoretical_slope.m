@@ -94,7 +94,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 	        dd = (max_D_over_lambda - min_D_over_lambda)/NNN;
 
 	        for i = 1 : NNN + 1
-	            [n(i), nm] = IoR(wl(k), T);   %compute index of refraction of beads relative to water
+	            [n(i), nm] = IoR_Sultanova(wl(k), T);   %compute index of refraction of beads relative to water
 	            rho(i) = pi*nm*(min_D_over_lambda + (i - 1)*dd); %rho
 	            [S1 S2 Qb Qc Qback] = fastmie(rho(i), n(i), nang);
 	            S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
@@ -103,7 +103,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 	            beta__(i, :) = Qb*S11/S11_int; %table of VSF for each wl
             end
             %compute nominal value
-            [n_nom, nm] = IoR(wl(k), T);   %compute index of refraction of beads relative to water
+            [n_nom, nm] = IoR_Sultanova(wl(k), T);   %compute index of refraction of beads relative to water
 	        rho_nom = pi*nm*(D0(nn)/wl(k)); 
             [S1 S2 Qb Qc Qback] = fastmie(rho_nom, n_nom, nang);
             S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
@@ -122,7 +122,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 				if any(lambda<=0)
 					keyboard()
                 end	
-                [nnn, nm] = IoR(lambda, T); 
+                [nnn, nm] = IoR_Sultanova(lambda, T); 
 	            rr = pi*nm*DD/lambda;
  
 	            beta(j, :) = pi*DD^2/4*interp1(rho, beta__, rr, 'linear','extrap'); % allow for extrapolation 
@@ -146,7 +146,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 	        dd = (max_D_over_lambda - min_D_over_lambda)/NNN;
 
 	        for i = 1: NNN + 1
-	            [n(i),  nm] = IoR(c_wl(jj), T);
+	            [n(i),  nm] = IoR_Sultanova(c_wl(jj), T);
 	            rho(i) = pi*nm*(min_D_over_lambda + (i - 1)*dd); %rho
 	            [S1 S2 Qb Qc Qback] = fastmie(rho(i), n(i), nang);
 	            S11 = 0.5*((abs(S1)).^2  +  (abs(S2)).^2);
@@ -165,7 +165,7 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 	        end
 
             %compute nominal value
-            [n_nom,  nm] = IoR(c_wl(jj), T);  %compute index of refraction of beads relative to water
+            [n_nom,  nm] = IoR_Sultanova(c_wl(jj), T);  %compute index of refraction of beads relative to water
 	        rho_nom = pi*real(n_nom)*(D0(nn)/c_wl(jj)); 
             [S1 S2 Qb Qc Qback] = fastmie(rho_nom, n_nom, nang);
 		    beam_c_nom(nn, jj)=Qc*pi*D0(nn)^2/4;
@@ -225,8 +225,18 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 end
 
 
+function [n, nm] = IoR_Sultanova(wl, T)
+%function to compute the index of refraction of beads relative to pure water of
+%temperature T.
+	np = 1.5725  +  0.003108/(wl^2)  +  0.00034779/(wl^4); %Sultanova et al. 2003
+	ni = 0.00;  %imaginary part of index of refraction
+	n0 = 1.31405; n1 = 1.779e-4; n2 = -1.05e-6; n3 = 1.6e-8; n4 = -2.02e-6; n5 = 15.868; n6 = 0.01155; n7 = -0.00423; n8 = -4382; n9 = 1.1455e6; %index of refraction of water Quan and Fry,  1995
+	nm = n0 + n4*T^2 + (n5 + n7*T)/(wl*1000) + n8/(wl*1000)^2 + n9/(wl*1000)^3; %checked
+	n = (np + ni*sqrt(-1))/nm; %index of refraction relative to water
+	return
+end
 
-function [n, nm] = IoR(wl, T)
+function [n, nm] = IoR_Jones(wl, T)
 %function to compute the index of refraction of beads relative to pure water of
 %temperature T.
 	np = 1.5718  +  0.008412/(wl^2)  +  0.000235/(wl^4); %Jones et al.
