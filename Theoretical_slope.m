@@ -24,11 +24,11 @@ function [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, 
 % Backscattering instrument angular reponse is given by a Gaussian with mean 'theta' and standard deviation 'd_theta'. Uncertainty in 
 % the mean values is given by 'err_theta'. 
 %
-% NB: UNITS: Wavelength and bead-size should be in either in units of microns or nanometers and angular parameters are assumed in degrees.
+% NB: UNITS: Wavelength and bead-size should be in either in units of microns (for the index of refraction computation to work correctly) and angular parameters are assumed in degrees.
 % Output: 'VSF' (mean VSF for 1 bead m^-3 of water), 'd_VSF' (uncertainty of VSF for 1 bead m^-3), 'beam_c' (for 1bead m^-3), 'd_beam_c' 
 % (uncertainty in beam attenaution for 1bead m^-3), 'ratio'-ratio of VSF/beam-c and 'unc_ratio' (uncertainty in the ratio).
 %
-%Bead index of refraction is taken from Jones et al., 2013
+%Bead index of refraction is taken from  Sultanova 2003 (one can switch to Jones, 2013)
 %
 % An example of how to call it: [VSF,d_VSF, beam_c, d_beam_c,ratio,unc_ratio, ratio_nom, ang, VSF_nom, beam_c_nom]= Theoretical_slope([0.1 0.2 0.7],[0.004 0.006 0.007],[0.020 0.003 0.040],[0.470 0.555],[0.015 0.010],0.532,0.01,120,5,16);
 % 
@@ -228,7 +228,8 @@ end
 function [n, nm] = IoR_Sultanova(wl, T)
 %function to compute the index of refraction of beads relative to pure water of
 %temperature T.
-	np = 1.5725  +  0.003108/(wl^2)  +  0.00034779/(wl^4); %Sultanova et al. 2003
+	A=[2.44675093;1.011623e-3;2.840749e-2;3.761631e-4;8.193491e-5;2.186304e-5];
+	np = sqrt(A(1)+A(2)*wl.^2+A(3)./wl.^2+A(4)./wl.^4+A(5)./wl.^6+A(6)./wl.^8);
 	ni = 0.00;  %imaginary part of index of refraction
 	n0 = 1.31405; n1 = 1.779e-4; n2 = -1.05e-6; n3 = 1.6e-8; n4 = -2.02e-6; n5 = 15.868; n6 = 0.01155; n7 = -0.00423; n8 = -4382; n9 = 1.1455e6; %index of refraction of water Quan and Fry,  1995
 	nm = n0 + n4*T^2 + (n5 + n7*T)/(wl*1000) + n8/(wl*1000)^2 + n9/(wl*1000)^3; %checked
